@@ -1,37 +1,62 @@
-import pathlib
-import textwrap
-
+import PIL.Image
 import google.generativeai as genai
 
-from IPython.display import Image, Audio
+# Set the API key for the generative AI
+GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
+genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
-GOOGLE_API_KEY='AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
+# Lists the modes of AI we can access
+for m in genai.list_models():
+  if 'generateContent' in m.supported_generation_methods:
+    print(m.name)
 
-genai.configure(api_key=GOOGLE_API_KEY)
+# Select the model to use, needs to be one of the models listed above
+SELECTED_MODEL = 'gemini-pro'
+model = genai.GenerativeModel(SELECTED_MODEL)
+print('\n' + "UESING: " + SELECTED_MODEL)
 
+# Generate content, sending the prompt to the AI
+response = model.generate_content("Hello")
 
-## Lists the modes of AI we can access ##
-# for m in genai.list_models():
-#   if 'generateContent' in m.supported_generation_methods:
-#     print(m.name)
-
-
-## Code that can successfully receive responses from the AI ##
-# model = genai.GenerativeModel('gemini-pro')
-# response = model.generate_content("What is the meaning of life?")
-# print(response.text)
-
-
-## Code that can successfully receive text interpretations of images from the AI ##
-# model = genai.GenerativeModel("gemini-pro-vision")
-# img = Image(filename='hello_image.png')
-# response = model.generate_content(["What is this image?", img])
-# print(response.text)
-
-
-## Code to try and receive text interpretations of audio from the AI ##
-from vertexai.generative_models import Part
-
-model = genai.GenerativeModel("gemini-pro")
-response = model.generate_content([Part.from_uri("hello_audio.mp3", mime_type="video/mp3"),"What is being said in this audio?",])
+# Get the text of the response
 print(response.text)
+print('\n')
+
+# Get the prompt feedback, which is the AI's interpretation of the prompt
+print(response.prompt_feedback)
+print('\n')
+
+# Get the list of candidates, which are the possible completions of the prompt
+##print(response.candidates)
+##print('\n')
+
+# generate content, sending the prompt to the AI, and streaming the response, this is useful for large responses as it will stream the response in chunks
+##response = model.generate_content("What is the meaning of life?", stream=True)
+##for chunk in response:
+##  print(chunk.text, end='', flush=True)
+
+# using the vision model to interpret an image, this will return the text interpretation of the image
+SELECTED_MODEL = 'gemini-pro-vision'
+model = genai.GenerativeModel(SELECTED_MODEL)
+print('\n' + "UESING: " + SELECTED_MODEL)
+
+img = PIL.Image.open('hello_image.png')
+response = model.generate_content(["what is witen in the image?", img])
+print(response.text)
+
+
+SELECTED_MODEL = 'gemini-pro'
+model = genai.GenerativeModel(SELECTED_MODEL)
+print('\n' + "UESING: " + SELECTED_MODEL)
+
+# chat with the AI, it will keep responding to the user input and remember the context of the conversation
+chat = model.start_chat()
+while True:
+  user_input = input("You: ")
+  
+  response = chat.send_message(user_input, stream=True)
+  print("Gemini: ")
+  for chunk in response:
+    print(chunk.text, end='', flush=True)
+  
+  print('\n')
