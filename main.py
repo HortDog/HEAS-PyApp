@@ -40,6 +40,7 @@ SELECTED_MODEL = 'gemini-pro-vision'
 model = genai.GenerativeModel(SELECTED_MODEL)
 print('\n' + "UESING: " + SELECTED_MODEL)
 
+# Load the image and send it to the AI
 img = PIL.Image.open('hello_image.png')
 response = model.generate_content(["what is witen in the image?", img])
 print(response.text)
