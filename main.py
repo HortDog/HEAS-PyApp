@@ -47,6 +47,7 @@ def check_new_files(existing_photo_files):
   #print('Live Check complete' + '\n')
 
 while True:
+  # replace with ui
   check = input("Do you want to take a photo? (y/n): ")
   if check == 'y':
     take_photo()
