@@ -13,7 +13,18 @@ model = genai.GenerativeModel(SELECTED_MODEL)
 print('\n' + "USING: " + SELECTED_MODEL)
 
 
-def speech_to_text(audio_data):
+def speech_to_text(audio_data: bytes) -> str:
+    '''
+        A function which converts an audio input into the text spoken within it.
+
+        Parameters:
+
+            audio_data: The audio input. (bytes)
+
+        Returns: (str)
+
+            The words spoken in the audio.
+    '''
     config = speech.RecognitionConfig(
         encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=48000, # Will be 16000 for the audio data
@@ -28,7 +39,18 @@ def speech_to_text(audio_data):
     return text_translation
 
 
-def generate_question(audio_data):
+def generate_question(audio_data: bytes) -> str:
+    '''
+        A control function which sends an audio input to speech to text and combines the text translations from it.
+
+        Parameters:
+
+            audio_data: The audio input. (bytes)
+
+        Returns: (str)
+
+            The combined text translation spoken across the full audio.
+    '''
     text_translation = speech_to_text(audio_data)
 
     full_question = ''
