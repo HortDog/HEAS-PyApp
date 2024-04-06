@@ -1,7 +1,9 @@
-import PIL.Image, os
+import os#, PIL.Image
 import google.generativeai as genai
 from google.cloud import speech
-from pathlib import Path
+# from pathlib import Path
+import speech_recognition as sr
+# from IPython.display import Audio
 
 # Set the API key for the generative AI
 GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
@@ -51,7 +53,9 @@ def generate_question(audio_data: bytes) -> str:
 
             The combined text translation spoken across the full audio.
     '''
+    print('translation started')
     text_translation = speech_to_text(audio_data)
+    print('translation complete')
 
     full_question = ''
 
@@ -61,20 +65,48 @@ def generate_question(audio_data: bytes) -> str:
     return full_question
 
 
+def summarise_chat(chat: list) -> str:
+    '''
+        Summarises the contents of the chat session/class.
+
+        Parameters:
+
+            chat: The history of the conversation between the students and the AI. (List)
+
+        Returns: (str)
+
+            The summary of the conversation.
+    '''
+    summary = "Summarise the following conversation", str(chat.history)
+    response = model.generate_content(summary)
+    
+    return response.text
+
+
+ear = sr.Recognizer()
+ear.pause_threshold = 0.6
+
 # chat with the AI, it will keep responding to the user input and remember the context of the conversation
 chat = model.start_chat()
-# while True:
-with open('hello_audio.wav', 'rb') as audio_file: content = audio_file.read()
-user_input = generate_question(content) # Replace content with the Audio data from the web
+while True:
+# with open('hello_audio.wav', 'rb') as audio_file: content = audio_file.read()
+    with sr.Microphone() as source2:
+        ear.adjust_for_ambient_noise(source2, duration=0.5)
+        content = ear.listen(source2).get_raw_data()
 
-print("User:", user_input)
+    user_input = generate_question(content) # Replace content with the Audio data from the web
 
-response = chat.send_message(user_input, stream=True)
-print("Gemini: ")
-for chunk in response:
-    print(chunk.text, end='', flush=True)
+    if user_input.lower() == 'end loop': break
+    elif user_input:
+        print("User:", user_input)
 
-print('\n')
+        response = chat.send_message(user_input, stream=True)
+        print("Gemini: ")
+        for chunk in response:
+            if chunk.text: print(chunk.text, end='', flush=True)
+
+        print('\n')
+print(summarise_chat(chat.history))
 
 
 ### Horton's Old Preview Code ###
