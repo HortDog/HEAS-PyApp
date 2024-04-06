@@ -151,6 +151,21 @@ print('\n')
 # print_response(response)
 
 
+## Alternative Speech to Text ##
+
+# import speech_recognition as sr
+
+# # initialize the recognizer
+# ear = sr.Recognizer()
+
+# with sr.AudioFile('hello_audio.wav') as source:
+#     # listen for the data (load audio to memory)
+#     audio_data = ear.record(source)
+#     # recognize (convert from speech to text)
+#     text = ear.recognize_google_cloud(audio_data)
+#     print(text)
+
+
 ### CODE GRAVEYARD ###
 
 # import speech_recognition as sr
