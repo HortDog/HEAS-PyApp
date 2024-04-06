@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 import os
 import time
@@ -19,14 +20,16 @@ print('\n' + "UESING: " + SELECTED_MODEL)
 
 
 def take_photo():
-  capta = urllib.request.urlopen('http://192.168.16.214/capture')
+  capta = urllib.request.urlopen('http://192.168.137.214/capture')
 # extract image from request
   img = PIL.Image.open(capta)
 # display image
   img.show()
 # Save the image to Class_Photos directory in the current directory
   current_directory = os.getcwd()
-  img.save(os.path.join(current_directory, 'Class_Photos', 'image2.jpg'))
+  name = 'Photo_' + str(random.randint(1, 1000000)) + '.jpg'
+  print(name)
+  img.save(os.path.join(current_directory, 'Class_Photos', name))
 
   # Check if a new file was added to Class_Photos directory
 
@@ -37,39 +40,51 @@ def check_new_files(existing_photo_files):
       new_files.append(filename)
   if new_files:
     print("New files added to Class_Photos directory:")
+    return new_files
   else:
-    print("No new files added to Class_Photos directory.")
-  print('Live Check complete' + '\n')
-  return new_files
+    return []
+  #  print("No new files added to Class_Photos directory.")
+  #print('Live Check complete' + '\n')
 
 while True:
+  check = input("Do you want to take a photo? (y/n): ")
+  if check == 'y':
+    take_photo()
+
   new_files = check_new_files(existing_photo_files)
   existing_photo_files = os.listdir('Class_Photos')
-  print(str(new_files) + '\n')
-  
+#  print(str(new_files) + '\n')
+
   if new_files != []:
     for filename in new_files:
       img = PIL.Image.open(os.path.join('Class_Photos', filename))
       # Mirror the image horizontally
       img = img.transpose(PIL.Image.FLIP_LEFT_RIGHT)
-      response = model.generate_content(["what is written in the image?, and give a short summary", img])
-      print(response.text)
-      print('\n')
+
+      try:
+        response = model.generate_content(["what is written in the image?, and give a short summary", img])
+        print(response.text)
+        print('\n')
+      except:
+        print("An error occurred while processing the image.")
+        continue
+
+      with open('data.json', 'r') as f:
+        data = json.load(f)
+      print(data)
+      data['Photo_Descriptions'].append({
+        filename : response.text
+        })
+      with open('data.json', 'w') as f:
+        json.dump(data, f, indent=2)
 
   # Delay for 2 seconds
   time.sleep(2)
 
-  # ...
 
-  def write_to_json(data):
-    with open('data.json', 'w') as file:
-      json.dump(data, file)
 
-  # ...
 
-  # Example usage
-  data = {'name': 'John', 'age': 30}
-  write_to_json(data)
+
 
 # # Load the image and send it to the AI
 # response = model.generate_content(["what is written in the image?, and give a short summary", img])
