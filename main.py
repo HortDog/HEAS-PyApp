@@ -1,14 +1,59 @@
 import PIL.Image
 import google.generativeai as genai
+from google.cloud import speech
 
 # Set the API key for the generative AI
 GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
 genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
-# Lists the modes of AI we can access
-# for m in genai.list_models():
-#     if 'generateContent' in m.supported_generation_methods:
-#        print(m.name)
+SELECTED_MODEL = 'gemini-pro'
+model = genai.GenerativeModel(SELECTED_MODEL)
+print('\n' + "USING: " + SELECTED_MODEL)
+
+
+def speech_to_text(audio_data):
+    config = speech.RecognitionConfig(
+        encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=16000,
+        language_code="en",
+    )
+    audio = speech.RecognitionAudio(content=audio_data)
+
+    client = speech.SpeechClient()
+
+    text_translation = client.recognize(config=config, audio=audio)
+
+    return text_translation
+
+
+def generate_question(audio_data):
+    text_translation = speech_to_text(audio_data)
+
+    full_question = ''
+
+    for result in text_translation.results:
+        full_question += result.alternatives[0].transcript
+    
+    return full_question
+
+
+# chat with the AI, it will keep responding to the user input and remember the context of the conversation
+chat = model.start_chat()
+# while True:
+with open('hello_audio.wav', 'rb') as audio_file: content = audio_file.read()
+user_input = generate_question(content) # Replace content with the Audio data from the web
+
+print("User:", user_input)
+
+response = chat.send_message(user_input, stream=True)
+print("Gemini: ")
+for chunk in response:
+    print(chunk.text, end='', flush=True)
+
+print('\n')
+
+
+### Horton's Old Preview Code ###
 
 # Select the model to use, needs to be one of the models listed above
 # SELECTED_MODEL = 'gemini-pro'
@@ -64,45 +109,44 @@ genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
 
 ## Speech to Text ##
-from google.cloud import speech
 
-def speech_to_text(
-    config: speech.RecognitionConfig,
-    audio: speech.RecognitionAudio,
-) -> speech.RecognizeResponse:
-    client = speech.SpeechClient()
+# def speech_to_text(
+#     config: speech.RecognitionConfig,
+#     audio: speech.RecognitionAudio,
+# ) -> speech.RecognizeResponse:
+#     client = speech.SpeechClient()
 
-    # Synchronous speech recognition request
-    response = client.recognize(config=config, audio=audio)
+#     # Synchronous speech recognition request
+#     response = client.recognize(config=config, audio=audio)
 
-    return response
-
-
-def print_response(response: speech.RecognizeResponse):
-    for result in response.results:
-        print_result(result)
+#     return response
 
 
-def print_result(result: speech.SpeechRecognitionResult):
-    best_alternative = result.alternatives[0]
-    print("-" * 80)
-    print(f"language_code: {result.language_code}")
-    print(f"transcript:    {best_alternative.transcript}")
-    print(f"confidence:    {best_alternative.confidence:.0%}")
+# def print_response(response: speech.RecognizeResponse):
+#     for result in response.results:
+#         print_result(result)
 
 
-with open('hello_audio.mp3', 'rb') as audio_file:
-    content = audio_file.read()
+# def print_result(result: speech.SpeechRecognitionResult):
+#     best_alternative = result.alternatives[0]
+#     print("-" * 80)
+#     print(f"language_code: {result.language_code}")
+#     print(f"transcript:    {best_alternative.transcript}")
+#     print(f"confidence:    {best_alternative.confidence:.0%}")
 
-config = speech.RecognitionConfig(
-    encoding = speech.RecognitionConfig.AudioEncoding.MP3,
-    sample_rate_hertz=16000,
-    language_code="en",
-)
-audio = speech.RecognitionAudio(content=content)
 
-response = speech_to_text(config, audio)
-print_response(response)
+# with open('hello_audio.mp3', 'rb') as audio_file:
+#     content = audio_file.read()
+
+# config = speech.RecognitionConfig(
+#     encoding = speech.RecognitionConfig.AudioEncoding.MP3,
+#     sample_rate_hertz=16000,
+#     language_code="en",
+# )
+# audio = speech.RecognitionAudio(content=content)
+
+# response = speech_to_text(config, audio)
+# print_response(response)
 
 
 ### CODE GRAVEYARD ###
