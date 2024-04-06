@@ -79,7 +79,7 @@ def summarise_chat(chat: list) -> str:
     '''
     summary = "Summarise the following conversation", str(chat.history)
     response = model.generate_content(summary)
-    
+
     return response.text
 
 
@@ -88,6 +88,9 @@ ear.pause_threshold = 0.6
 
 # chat with the AI, it will keep responding to the user input and remember the context of the conversation
 chat = model.start_chat()
+with open('audio_transcript.txt', 'w') as file:
+    file.write('')
+    file.close()
 while True:
 # with open('hello_audio.wav', 'rb') as audio_file: content = audio_file.read()
     with sr.Microphone() as source2:
@@ -98,15 +101,24 @@ while True:
 
     if user_input.lower() == 'end loop': break
     elif user_input:
+        transcript = 'User:' + '\n' + user_input + '\n' + '\n'
         print("User:", user_input)
 
         response = chat.send_message(user_input, stream=True)
+
+        transcript += 'Gemini:' + '\n'
         print("Gemini: ")
         for chunk in response:
-            if chunk.text: print(chunk.text, end='', flush=True)
+            if chunk.text:
+                transcript += chunk.text
+                print(chunk.text, end='', flush=True)
 
+        transcript += '\n' + '\n'
         print('\n')
-print(summarise_chat(chat.history))
+        with open('audio_transcript.txt', 'a') as file:
+            file.write(transcript)
+            file.close()
+# print(summarise_chat(chat.history))
 
 
 ### Horton's Old Preview Code ###
