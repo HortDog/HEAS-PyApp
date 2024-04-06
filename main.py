@@ -6,58 +6,147 @@ GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
 genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
 # Lists the modes of AI we can access
-for m in genai.list_models():
-  if 'generateContent' in m.supported_generation_methods:
-    print(m.name)
+# for m in genai.list_models():
+#     if 'generateContent' in m.supported_generation_methods:
+#        print(m.name)
 
 # Select the model to use, needs to be one of the models listed above
-SELECTED_MODEL = 'gemini-pro'
-model = genai.GenerativeModel(SELECTED_MODEL)
-print('\n' + "UESING: " + SELECTED_MODEL)
+# SELECTED_MODEL = 'gemini-pro'
+# model = genai.GenerativeModel(SELECTED_MODEL)
+# print('\n' + "USING: " + SELECTED_MODEL)
 
 # Generate content, sending the prompt to the AI
-response = model.generate_content("Hello")
+# response = model.generate_content("Hello")
 
 # Get the text of the response
-print(response.text)
-print('\n')
+# print(response.text)
+# print('\n')
 
 # Get the prompt feedback, which is the AI's interpretation of the prompt
-print(response.prompt_feedback)
-print('\n')
+# print(response.prompt_feedback)
+# print('\n')
 
 # Get the list of candidates, which are the possible completions of the prompt
-##print(response.candidates)
-##print('\n')
+# print(response.candidates)
+# print('\n')
 
 # generate content, sending the prompt to the AI, and streaming the response, this is useful for large responses as it will stream the response in chunks
-##response = model.generate_content("What is the meaning of life?", stream=True)
-##for chunk in response:
-##  print(chunk.text, end='', flush=True)
+# response = model.generate_content("What is the meaning of life?", stream=True)
+# for chunk in response:
+#     print(chunk.text, end='', flush=True)
 
 # using the vision model to interpret an image, this will return the text interpretation of the image
-SELECTED_MODEL = 'gemini-pro-vision'
-model = genai.GenerativeModel(SELECTED_MODEL)
-print('\n' + "UESING: " + SELECTED_MODEL)
+# SELECTED_MODEL = 'gemini-pro-vision'
+# model = genai.GenerativeModel(SELECTED_MODEL)
+# print('\n' + "USING: " + SELECTED_MODEL)
 
 # Load the image and send it to the AI
-img = PIL.Image.open('hello_image.png')
-response = model.generate_content(["what is witen in the image?", img])
-print(response.text)
+# img = PIL.Image.open('hello_image.png')
+# response = model.generate_content(["what is written in the image?", img])
+# print(response.text)
 
 
-SELECTED_MODEL = 'gemini-pro'
-model = genai.GenerativeModel(SELECTED_MODEL)
-print('\n' + "UESING: " + SELECTED_MODEL)
+# SELECTED_MODEL = 'gemini-pro'
+# model = genai.GenerativeModel(SELECTED_MODEL)
+# print('\n' + "USING: " + SELECTED_MODEL)
 
 # chat with the AI, it will keep responding to the user input and remember the context of the conversation
-chat = model.start_chat()
-while True:
-  user_input = input("You: ")
+# chat = model.start_chat()
+# while True:
+#     user_input = input("You: ")
   
-  response = chat.send_message(user_input, stream=True)
-  print("Gemini: ")
-  for chunk in response:
-    print(chunk.text, end='', flush=True)
+#     response = chat.send_message(user_input, stream=True)
+#     print("Gemini: ")
+#     for chunk in response:
+#         print(chunk.text, end='', flush=True)
   
-  print('\n')
+#     print('\n')
+
+
+## Speech to Text ##
+from google.cloud import speech
+
+def speech_to_text(
+    config: speech.RecognitionConfig,
+    audio: speech.RecognitionAudio,
+) -> speech.RecognizeResponse:
+    client = speech.SpeechClient()
+
+    # Synchronous speech recognition request
+    response = client.recognize(config=config, audio=audio)
+
+    return response
+
+
+def print_response(response: speech.RecognizeResponse):
+    for result in response.results:
+        print_result(result)
+
+
+def print_result(result: speech.SpeechRecognitionResult):
+    best_alternative = result.alternatives[0]
+    print("-" * 80)
+    print(f"language_code: {result.language_code}")
+    print(f"transcript:    {best_alternative.transcript}")
+    print(f"confidence:    {best_alternative.confidence:.0%}")
+
+
+with open('hello_audio.mp3', 'rb') as audio_file:
+    content = audio_file.read()
+
+config = speech.RecognitionConfig(
+    encoding = speech.RecognitionConfig.AudioEncoding.MP3,
+    sample_rate_hertz=16000,
+    language_code="en",
+)
+audio = speech.RecognitionAudio(content=content)
+
+response = speech_to_text(config, audio)
+print_response(response)
+
+
+### CODE GRAVEYARD ###
+
+# import speech_recognition as sr
+# from IPython.display import Audio
+
+# ear = sr.Recognizer()
+
+# while(1):    
+     
+#     # Exception handling to handle
+#     # exceptions at the runtime
+#     try:
+         
+#         # use the microphone as source for input.
+#         with sr.Microphone() as source2:
+#             ear.adjust_for_ambient_noise(source2, duration=0.2)
+#             audio2 = ear.listen(source2)
+
+#             print(ear.recognize_google_cloud(audio2, GOOGLE_APPLICATION_CREDENTIALS))
+             
+#     except sr.RequestError as e:
+#         print("Could not request results; {0}".format(e))
+         
+#     except sr.UnknownValueError:
+#         print("unknown error occurred")
+
+
+# import vertexai
+
+# from vertexai.generative_models import GenerativeModel, Part
+
+# # Initialize Vertex AI
+# vertexai.init(project='heas-419409', location='australia-southeast1')
+# # Load the model
+# vision_model = GenerativeModel("gemini-1.0-pro-vision")
+# # Generate text
+# response = vision_model.generate_content(
+#     [
+#         Part.from_uri(
+#             "gs://cloud-samples-data/video/animals.mp4", mime_type="video/mp4"
+#         ),
+#         "What is in the video?",
+#     ]
+# )
+# print(response.text)
