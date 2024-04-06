@@ -1,10 +1,12 @@
-import PIL.Image
+import PIL.Image, os
 import google.generativeai as genai
 from google.cloud import speech
+from pathlib import Path
 
 # Set the API key for the generative AI
 GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
 genai.configure(api_key=(GENERATIVEAI_API_KEY))
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'application_default_credentials.json'
 
 SELECTED_MODEL = 'gemini-pro'
 model = genai.GenerativeModel(SELECTED_MODEL)
@@ -14,7 +16,7 @@ print('\n' + "USING: " + SELECTED_MODEL)
 def speech_to_text(audio_data):
     config = speech.RecognitionConfig(
         encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
+        sample_rate_hertz=48000, # Will be 16000 for the audio data
         language_code="en",
     )
     audio = speech.RecognitionAudio(content=audio_data)
