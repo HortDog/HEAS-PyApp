@@ -29,7 +29,7 @@ def speech_to_text(audio_data: bytes) -> str:
     '''
     config = speech.RecognitionConfig(
         encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=48000, # Will be 16000 for the audio data
+        sample_rate_hertz=48000,
         language_code="en",
     )
     audio = speech.RecognitionAudio(content=audio_data)
