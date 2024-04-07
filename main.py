@@ -15,7 +15,7 @@ from pydub.playback import play
 existing_photo_files = os.listdir('Class_Photos')
 
 #Wav URL information
-wav_url = 'http://192.168.137.252:81/mic'
+wav_url = 'http://192.168.137.115:81/mic'
 wav_output_file = 'audio_stream.wav'
 
 recording_confirmation_file = 'Record_condition.txt'
@@ -33,7 +33,7 @@ print('\n' + "USING: " + SELECTED_MODEL)
 
 
 def take_photo():
-  capta = urllib.request.urlopen('http://192.168.137.214/capture')
+  capta = urllib.request.urlopen('http://192.168.137.115/capture')
 # extract image from request
   img = PIL.Image.open(capta)
 # display image

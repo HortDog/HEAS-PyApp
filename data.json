@@ -1,22 +1,12 @@
 {
   "conversation": [
     {
-      "speaker": "",
-      "message": ""
+      "speaker" : "message"
     }
   ],
   "Photo_Descriptions": [
     {
       "photo_path": "description"
-    },
-    {
-      "image2 copy 12.jpg": " The image is a comparison between teachers and students in terms of technology use.\n\nFor teachers, it is mentioned that they use conceptual computers that are in the cloud and are accessible from any device. They also use physical modules and processing voice recognition.\n\nFor students, it is mentioned that they use physical devices and handheld devices for each student. They also record and send voice tokens and receive text tokens."
-    },
-    {
-      "image2 copy 2.jpg": " The image is a comparison between teachers and students in terms of technology use. It lists the different devices and tools that each group uses. For example, teachers use conceptual computers while students use physical devices. The image also lists the different ways that each group uses technology. For example, teachers use technology to process voice recognition, while students use it to record and send voice tokens."
-    },
-    {
-      "Photo_565024.jpg": " The image is a screenshot of a computer screen with code written in a programming language. The code is written in Python. The code is a function that takes two parameters, a and b, and returns the sum of the two numbers. The code is written in a clear and concise manner."
     }
   ]
 }
