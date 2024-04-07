@@ -20,12 +20,17 @@ print('\n' + "USING: " + SELECTED_MODEL)
 #Wav URL information
 wav_url = 'http://192.168.137.252:81/mic'
 wav_output_file = 'audio_stream.wav'
+recording_confirmation_file = 'Record_condition.txt'
+recording = False
+
+
+def check_recording():
+    with open(recording_confirmation_file, 'r') as file:
+        if file.read() == 'True': return True
+    return False
 
 
 def record_wav():
-    # Duration to capture the stream (in seconds)
-    duration = 10
-
     # Open a file to write the stream data
     with open(wav_output_file, 'wb') as f:
         # Send a request to get the stream
@@ -33,8 +38,9 @@ def record_wav():
             start_time = time.time()
             # Read chunks of the stream and write to the file
             for chunk in r.iter_content(chunk_size=1024):
+                recording = check_recording()
                 # Check if the duration has been reached
-                if time.time() - start_time > duration:
+                if not recording:
                     break
                 f.write(chunk)
 
@@ -114,10 +120,6 @@ def summarise_chat(chat: list) -> str:
     return response.text
 
 
-ear = sr.Recognizer()
-ear.pause_threshold = 0.6
-
-# chat with the AI, it will keep responding to the user input and remember the context of the conversation
 chat = model.start_chat()
 with open('audio_transcript.txt', 'w') as file:
     file.write('')
@@ -127,6 +129,9 @@ while True:
     #     ear.adjust_for_ambient_noise(source2, duration=0.5)
     #     content = ear.listen(source2).get_raw_data()
 
+    recording = check_recording()
+    while not recording:
+        recording = check_recording()
     record_wav()
 
     with open(wav_output_file, 'rb') as audio_file: content = audio_file.read()
@@ -156,6 +161,13 @@ while True:
         except:
             print('Error, please try again.')
         play_wav()
+
+
+# ear = sr.Recognizer()
+# ear.pause_threshold = 0.6
+
+# chat with the AI, it will keep responding to the user input and remember the context of the conversation
+
 # print(summarise_chat(chat.history))
 
 
