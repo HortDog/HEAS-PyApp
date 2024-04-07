@@ -14,7 +14,12 @@ from pydub.playback import play
 
 existing_photo_files = os.listdir('Class_Photos')
 
+#Wav URL information
+wav_url = 'http://192.168.137.252:81/mic'
+wav_output_file = 'audio_stream.wav'
+
 recording_confirmation_file = 'Record_condition.txt'
+capture_confirmation_file = 'Capture.txt'
 recording = False
 
 # Set the API key for the generative AI
@@ -53,29 +58,6 @@ def check_new_files(existing_photo_files):
     return []
   #  print("No new files added to Class_Photos directory.")
   #print('Live Check complete' + '\n')
-
-#Wav URL information
-wav_url = 'http://192.168.137.252:81/mic'
-wav_output_file = 'audio_stream.wav'
-
-def record_wav():
-    # Duration to capture the stream (in seconds)
-    duration = 10
-
-    # Open a file to write the stream data
-    with open(wav_output_file, 'wb') as f:
-        # Send a request to get the stream
-        with requests.get(wav_url, stream=True) as r:
-            start_time = time.time()
-            # Read chunks of the stream and write to the file
-            for chunk in r.iter_content(chunk_size=1024):
-                # Check if the duration has been reached
-                if time.time() - start_time > duration:
-                    break
-                f.write(chunk)
-
-    # print(f'Stream saved to {output_file}')
-
 
 def play_wav():
     song = AudioSegment.from_wav(wav_output_file)
@@ -158,6 +140,13 @@ while True:
   # check = input("Do you want to take a photo? (y/n): ")
   # if check == 'y':
   #   take_photo()
+
+  with open(capture_confirmation_file, 'r') as file:
+    if file.read() == 'a': take_photo()
+
+  with open(capture_confirmation_file, 'w') as file:
+    file.write('')
+    file.close()
 
   new_files = check_new_files(existing_photo_files)
   existing_photo_files = os.listdir('Class_Photos')
