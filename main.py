@@ -14,6 +14,9 @@ from pydub.playback import play
 
 existing_photo_files = os.listdir('Class_Photos')
 
+recording_confirmation_file = 'Record_condition.txt'
+recording = False
+
 # Set the API key for the generative AI
 GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
 genai.configure(api_key=(GENERATIVEAI_API_KEY))
@@ -128,11 +131,33 @@ def generate_question(audio_data: bytes) -> str:
     
     return full_question
 
+
+def check_recording():
+    with open(recording_confirmation_file, 'r') as file:
+        if file.read() == 'True': return True
+    return False
+
+
+def record_wav():
+    # Open a file to write the stream data
+    with open(wav_output_file, 'wb') as f:
+        # Send a request to get the stream
+        with requests.get(wav_url, stream=True) as r:
+            start_time = time.time()
+            # Read chunks of the stream and write to the file
+            for chunk in r.iter_content(chunk_size=1024):
+                recording = check_recording()
+                # Check if the duration has been reached
+                if not recording:
+                    break
+                f.write(chunk)
+
+
 while True:
   # replace with ui
-  check = input("Do you want to take a photo? (y/n): ")
-  if check == 'y':
-    take_photo()
+  # check = input("Do you want to take a photo? (y/n): ")
+  # if check == 'y':
+  #   take_photo()
 
   new_files = check_new_files(existing_photo_files)
   existing_photo_files = os.listdir('Class_Photos')
@@ -161,39 +186,40 @@ while True:
       with open('data.json', 'w') as f:
         json.dump(data, f, indent=2)
 
-  
-  record_wav()
+  recording = check_recording()
+  if recording:
+    record_wav()
 
-  with open(wav_output_file, 'rb') as audio_file: content = audio_file.read()
+    with open(wav_output_file, 'rb') as audio_file: content = audio_file.read()
 
-  user_input = generate_question(content) # Replace content with the Audio data from the web
+    user_input = generate_question(content) # Replace content with the Audio data from the web
 
-  # if user_input.lower() == 'end loop': break
-  if user_input:
-    try:
-      transcript = 'User:' + '\n' + user_input + '\n' + '\n'
-      print("User:", user_input)
+    # if user_input.lower() == 'end loop': break
+    if user_input:
+      try:
+        transcript = 'User:' + '\n' + user_input + '\n' + '\n'
+        print("User:", user_input)
 
-      response = chat.send_message(user_input, stream=True)
+        response = chat.send_message(user_input, stream=True)
 
-      transcript += 'Gemini:' + '\n'
-      print("Gemini: ")
-      for chunk in response:
-          if chunk.text:
-              transcript += chunk.text
-              print(chunk.text, end='', flush=True)
+        transcript += 'Gemini:' + '\n'
+        print("Gemini: ")
+        for chunk in response:
+            if chunk.text:
+                transcript += chunk.text
+                print(chunk.text, end='', flush=True)
 
-      transcript += '\n' + '\n'
-      print('\n')
-      with open('audio_transcript.txt', 'a') as file:
-          file.write(transcript)
-          file.close()
-    except:
-      print('Error, please try again.')
-    play_wav()
+        transcript += '\n' + '\n'
+        print('\n')
+        with open('audio_transcript.txt', 'a') as file:
+            file.write(transcript)
+            file.close()
+      except:
+        print('Error, please try again.')
+      play_wav()
 
   # Delay for 2 seconds
-  time.sleep(2)
+  # time.sleep(2)
 
 
 
