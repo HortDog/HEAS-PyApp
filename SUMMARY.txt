@@ -1,0 +1,45 @@
+**Class Notes:**
+
+**Napoleon Bonaparte**
+
+* Born in Corsica in 1769
+* Rose through the ranks during the French Revolutionary Wars
+* Appointed Consul of France in 1799
+* Crowned Emperor of the French in 1804
+* Expanded French territory through military conquests
+* Implemented the Napoleonic Code
+* Defeated at the Battle of Waterloo in 1815
+* Died in exile on Saint Helena in 1821
+* Legacy includes military brilliance and lasting impact on Europe
+
+**Exponential Differentiation (Chain Rule)**
+
+* Formula: f'(x) = a^(g(x)) * g'(x) * ln(a)
+* Steps:
+    * Identify base (a) and argument (g(x))
+    * Differentiate the argument (g'(x))
+    * Multiply by base, argument derivative, and ln(a)
+
+**AI and Emotions**
+
+* AI chatbots do not have personal feelings or emotions
+* They are designed to assist users with information and tasks
+
+**Parrots**
+
+* Highly intelligent and social birds
+* Known for plumage, vocalizations, and speech mimicry
+* Omnivorous diet
+* Habitat in tropical and subtropical regions
+* Conservation efforts to protect threatened species
+
+**Photo Descriptions**
+
+* Image of a laptop with code (Python program)
+* Image of a person's face from a security camera
+* Image of a hallway with an "Authorized Personnel Only" sign
+* Image of a person walking quickly towards a door from a security camera
+* Image of a person looking at a screen with reflection
+* Image of a young man making a funny face
+* Image of a young man with a neutral expression in a dark room
+* Image of a system of linear equations with solution x = 5, y = 10

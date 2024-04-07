@@ -11,11 +11,13 @@ import speech_recognition as sr
 import requests
 from pydub import AudioSegment
 from pydub.playback import play
+import keyboard
 
 existing_photo_files = os.listdir('Class_Photos')
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'application_default_credentials.json'
 
 #Wav URL information
-wav_url = 'http://192.168.137.115:81/mic'
+wav_url = 'http://192.168.137.196:81/mic'
 wav_output_file = 'audio_stream.wav'
 
 recording_confirmation_file = 'Record_condition.txt'
@@ -28,12 +30,16 @@ genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
 # using the vision model to interpret an image, this will return the text interpretation of the image
 SELECTED_MODEL = 'gemini-pro-vision'
-model = genai.GenerativeModel(SELECTED_MODEL)
+model_vis = genai.GenerativeModel(SELECTED_MODEL)
+print('\n' + "USING: " + SELECTED_MODEL)
+
+SELECTED_MODEL = 'gemini-pro'
+model_text = genai.GenerativeModel(SELECTED_MODEL)
 print('\n' + "USING: " + SELECTED_MODEL)
 
 
 def take_photo():
-  capta = urllib.request.urlopen('http://192.168.137.115/capture')
+  capta = urllib.request.urlopen('http://192.168.137.196/capture')
 # extract image from request
   img = PIL.Image.open(capta)
 # display image
@@ -58,6 +64,7 @@ def check_new_files(existing_photo_files):
     return []
   #  print("No new files added to Class_Photos directory.")
   #print('Live Check complete' + '\n')
+
 
 def play_wav():
     song = AudioSegment.from_wav(wav_output_file)
@@ -159,7 +166,7 @@ while True:
       img = img.transpose(PIL.Image.FLIP_LEFT_RIGHT)
 
       try:
-        response = model.generate_content(["what is written in the image?, and give a short summary", img])
+        response = model_vis.generate_content(["what is written in the image?, and give a short summary", img])
         print(response.text)
         print('\n')
       except:
@@ -189,16 +196,21 @@ while True:
         transcript = 'User:' + '\n' + user_input + '\n' + '\n'
         print("User:", user_input)
 
-        response = chat.send_message(user_input, stream=True)
+        response = model_text.generate_content(user_input)
 
-        transcript += 'Gemini:' + '\n'
+        transcript += 'Gemini:' + '\n' + response.text + '\n'
         print("Gemini: ")
-        for chunk in response:
-            if chunk.text:
-                transcript += chunk.text
-                print(chunk.text, end='', flush=True)
+        print(response.text)
+        
+        with open('data.json', 'r') as f:
+          data = json.load(f)
+          print(data)
+          data['conversation'].append({
+            user_input : response.text
+          })
+        with open('data.json', 'w') as f:
+          json.dump(data, f, indent=2)
 
-        transcript += '\n' + '\n'
         print('\n')
         with open('audio_transcript.txt', 'a') as file:
             file.write(transcript)
@@ -207,35 +219,18 @@ while True:
         print('Error, please try again.')
       play_wav()
 
-  # Delay for 2 seconds
-  # time.sleep(2)
+  if keyboard.is_pressed('space'):
+    print("Spacebar is pressed!")
+    break
 
-
-
-
-
-
-# # Load the image and send it to the AI
-# response = model.generate_content(["what is written in the image?, and give a short summary", img])
-
-# # Loop through Class_Photos directory
-# for filename in os.listdir('Class_Photos'):
-#   if filename.endswith('.jpg'):
-#     # Load the image and send it to the AI
-#     img = PIL.Image.open(os.path.join('Class_Photos', filename))
-#     response = model.generate_content(["what is written in the image?", img])
-#     print(response.text)
-
-
-
-# # chat with the AI, it will keep responding to the user input and remember the context of the conversation
-# chat = model.start_chat()
-# while True:
-#   user_input = input("You: ")
-  
-#   response = chat.send_message(user_input, stream=True)
-#   print("Gemini: ")
-#   for chunk in response:
-#     print(chunk.text, end='', flush=True)
-  
-#   print('\n')
+    # Load the image and send it to the AI
+    # Read data.json as a text file
+with open('data.json', 'r') as file:
+  data = file.read()
+  # Send the data to the AI
+  response = model_text.generate_content('Summerize this as class notes, give a 200 word summery of info' + str(data))
+  # Print the response
+print(response.text)
+# Save the response to a text file called "SUMMARY.txt"
+with open('SUMMARY.txt', 'w') as file:
+  file.write(response.text)
