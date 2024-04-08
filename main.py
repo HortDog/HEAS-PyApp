@@ -17,7 +17,7 @@ existing_photo_files = os.listdir('Class_Photos')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'application_default_credentials.json'
 
 #Wav URL information
-wav_url = 'http://192.168.137.196:81/mic'
+wav_url = 'http://192.168.137.198:81/mic'
 wav_output_file = 'audio_stream.wav'
 
 recording_confirmation_file = 'Record_condition.txt'
@@ -25,7 +25,7 @@ capture_confirmation_file = 'Capture.txt'
 recording = False
 
 # Set the API key for the generative AI
-GENERATIVEAI_API_KEY = 'AIzaSyDl6MHrxXPqXc5gfVArkdlgX9Nf0b9zzZ4'
+GENERATIVEAI_API_KEY = 'CAN NOT BE PROVIDED IN PUBLIC REPO'
 genai.configure(api_key=(GENERATIVEAI_API_KEY))
 
 # using the vision model to interpret an image, this will return the text interpretation of the image
@@ -39,7 +39,7 @@ print('\n' + "USING: " + SELECTED_MODEL)
 
 
 def take_photo():
-  capta = urllib.request.urlopen('http://192.168.137.196/capture')
+  capta = urllib.request.urlopen('http://192.168.137.198/capture')
 # extract image from request
   img = PIL.Image.open(capta)
 # display image
